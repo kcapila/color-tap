@@ -20,22 +20,19 @@ const MIN_TIME = 700;
 const SPEED_DECREMENT = 80;
 
 export default function ColorTap() {
-  const [phase, setPhase] = useState("menu"); // menu | playing | gameover
+  const [phase, setPhase] = useState("menu");
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [targetColor, setTargetColor] = useState(null);
   const [buttons, setButtons] = useState([]);
   const [timeLeft, setTimeLeft] = useState(1);
-  const [totalTime, setTotalTime] = useState(INITIAL_TIME);
-  const [feedback, setFeedback] = useState(null); // "correct" | "wrong"
+  const [feedback, setFeedback] = useState(null);
   const [streak, setStreak] = useState(0);
-  const timerRef = useRef(null);
   const startTimeRef = useRef(null);
   const animFrameRef = useRef(null);
 
   const nextRound = useCallback((currentScore, currentStreak) => {
     const newTime = Math.max(MIN_TIME, INITIAL_TIME - currentScore * SPEED_DECREMENT);
-    setTotalTime(newTime);
     setTargetColor(getRandomColor());
     setButtons(shuffle(COLORS));
     setTimeLeft(1);
@@ -48,7 +45,6 @@ export default function ColorTap() {
       if (remaining > 0) {
         animFrameRef.current = requestAnimationFrame(tick);
       } else {
-        // Time's up = wrong
         setFeedback("wrong");
         setPhase("gameover");
       }
@@ -89,12 +85,12 @@ export default function ColorTap() {
     return () => cancelAnimationFrame(animFrameRef.current);
   }, []);
 
-  // Timer bar color goes from green -> yellow -> red
   const timerColor = timeLeft > 0.5 ? "#3BFF7A" : timeLeft > 0.25 ? "#FFE03B" : "#FF3B3B";
 
   return (
     <div style={{
       minHeight: "100vh",
+      width: "100vw",         /* FIX: force full viewport width */
       background: "#0a0a0f",
       display: "flex",
       flexDirection: "column",
@@ -104,6 +100,7 @@ export default function ColorTap() {
       userSelect: "none",
       overflow: "hidden",
       position: "relative",
+      boxSizing: "border-box",
     }}>
       {/* Scanline overlay */}
       <div style={{
@@ -118,7 +115,8 @@ export default function ColorTap() {
         backgroundSize: "40px 40px",
       }} />
 
-      <div style={{ width: "100%", maxWidth: 400, padding: "0 20px", position: "relative", zIndex: 1 }}>
+      {/* FIX: removed maxWidth, use full width with padding */}
+      <div style={{ width: "100%", padding: "0 24px", boxSizing: "border-box", position: "relative", zIndex: 1 }}>
 
         {/* MENU */}
         {phase === "menu" && (
@@ -165,7 +163,6 @@ export default function ColorTap() {
         {/* PLAYING */}
         {phase === "playing" && targetColor && (
           <div style={{ textAlign: "center" }}>
-            {/* Score & Streak */}
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32, alignItems: "center" }}>
               <div>
                 <div style={{ color: "#444", fontSize: 10, letterSpacing: 3 }}>SCORE</div>
@@ -182,7 +179,6 @@ export default function ColorTap() {
               </div>
             </div>
 
-            {/* Timer bar */}
             <div style={{ height: 6, background: "#1a1a1a", borderRadius: 3, marginBottom: 40, overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: 3,
@@ -193,7 +189,6 @@ export default function ColorTap() {
               }} />
             </div>
 
-            {/* Target word */}
             <div style={{
               fontSize: 56, fontWeight: 900, letterSpacing: 6,
               color: targetColor.hex,
@@ -205,16 +200,15 @@ export default function ColorTap() {
               {targetColor.name}
             </div>
 
-            {/* Color buttons */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               {buttons.map((color) => (
                 <button key={color.name} onClick={() => handleTap(color)} style={{
                   background: color.hex,
                   border: "none",
                   borderRadius: 8,
-                  height: 80,
+                  height: 100,       /* FIX: taller buttons for mobile */
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 15,
                   fontWeight: 900,
                   letterSpacing: 3,
                   color: "#000",
@@ -225,8 +219,8 @@ export default function ColorTap() {
                 }}
                   onMouseDown={e => { e.target.style.transform = "scale(0.95)"; }}
                   onMouseUp={e => { e.target.style.transform = "scale(1)"; }}
-                  onTouchStart={e => { e.target.style.transform = "scale(0.95)"; }}
-                  onTouchEnd={e => { e.target.style.transform = "scale(1)"; }}
+                  onTouchStart={e => { e.currentTarget.style.transform = "scale(0.95)"; }}
+                  onTouchEnd={e => { e.currentTarget.style.transform = "scale(1)"; }}
                 >
                   {color.name}
                 </button>
