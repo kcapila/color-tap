@@ -115,8 +115,7 @@ export default function ColorTap() {
         backgroundSize: "40px 40px",
       }} />
 
-      {/* FIX: removed maxWidth, use full width with padding */}
-      <div style={{ width: "100%", padding: "0 24px", boxSizing: "border-box", position: "relative", zIndex: 1 }}>
+      <div style={{ width: "100%", maxWidth: 480, padding: "0 24px", boxSizing: "border-box", position: "relative", zIndex: 1 }}>
 
         {/* MENU */}
         {phase === "menu" && (
