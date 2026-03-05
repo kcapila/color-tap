@@ -287,6 +287,8 @@ export default function ColorTap() {
       <style>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { from { opacity: 0.7; } to { opacity: 1; } }
+        button:focus { outline: none; }
+        button:focus-visible { outline: none; }
       `}</style>
     </div>
   );
